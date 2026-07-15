@@ -1,7 +1,6 @@
 window.AKASHA_CONFIG = {
-    // Режим для GitHub Pages: данные сохраняются в localStorage браузера.
-    storage: 'local',
+    storage: 'firebase', // ← ВАЖНО: теперь использует Firebase
     appName: 'Акаша',
-    version: '2.5.0-github',
+    version: '2.5.0-firebase',
     sessionRefreshMinutes: 10
 };
