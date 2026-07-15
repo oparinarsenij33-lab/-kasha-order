@@ -1,0 +1,15 @@
+{
+  "name": "Акаша — кабинет Ордена",
+  "short_name": "Акаша",
+  "description": "Уроки, домашние задания, сообщения и успеваемость Ордена.",
+  "lang": "ru",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07140f",
+  "theme_color": "#0d1f14",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

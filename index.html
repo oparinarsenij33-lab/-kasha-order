@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#0d1f14">
+    <meta name="description" content="Акаша — учебный кабинет Ордена: уроки, домашние задания, сообщения и успеваемость.">
+    <meta name="color-scheme" content="dark">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Акаша — Хранительница Знаний Ордена</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="base-2.5.css?v=2.5.0">
+    <link rel="stylesheet" href="ui-2.5.css?v=2.5.0">
+    <script>
+    // Однократно удаляем кэш старых версий, из-за которого CSS и JS смешивались.
+    window.addEventListener('load', function () {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (items) {
+                items.forEach(function (item) { item.unregister(); });
+            }).catch(function () {});
+        }
+        if ('caches' in window) {
+            caches.keys().then(function (keys) {
+                keys.filter(function (key) { return key.indexOf('akasha-') === 0; })
+                    .forEach(function (key) { caches.delete(key); });
+            }).catch(function () {});
+        }
+    }, { once: true });
+    </script>
+</head>
+<body>
+    <a class="skip-link" href="#chat-container">К основному содержимому</a>
+
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="brand-block">
+                <div class="brand-icon" aria-hidden="true"><i class="fa-solid fa-scroll"></i></div>
+                <div>
+                    <h1>Акаша</h1>
+                    <p class="subtitle">Хранительница Знаний Ордена</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div id="connection-status" class="status-chip is-connecting" role="status" aria-live="polite">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <span class="status-text">Подключение…</span>
+                </div>
+                <div id="current-user-chip" class="user-chip" hidden>
+                    <i class="fa-solid fa-user" aria-hidden="true"></i>
+                    <span id="current-user-name"></span>
+                </div>
+                <button class="icon-button logout-btn" id="logout-button" type="button" onclick="handleLogout()" hidden aria-label="Выйти из аккаунта" title="Выйти">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div id="season-indicator" class="season-indicator" aria-label="Сезонная тема"></div>
+        </header>
+
+        <main class="container">
+            <section id="chat-container" class="chat-container" tabindex="-1" aria-live="polite" aria-label="Основное содержимое"></section>
+
+            <section class="input-wrapper" id="main-input-wrapper" hidden aria-label="Поиск по Акаше">
+                <div class="input-wrapper-title">
+                    <span><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Поиск по Акаше</span>
+                    <small>Обычный блок страницы — ничего не перекрывает</small>
+                </div>
+                <textarea id="custom-textarea" class="custom-textarea" placeholder="Введи вопрос или команду…" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" enterkeyhint="send" maxlength="10000" aria-label="Сообщение Акаше"></textarea>
+                <div class="toolbar">
+                    <span class="input-hint"><i class="fa-regular fa-keyboard" aria-hidden="true"></i> Enter — отправить, Shift+Enter — новая строка</span>
+                    <span id="main-input-counter" class="char-counter" aria-live="polite">0 / 10000</span>
+                    <button class="toolbar-btn send-btn" id="main-send-button" type="button" onclick="handleSend()">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Отправить</span>
+                    </button>
+                </div>
+                <div id="custom-keyboard" class="custom-keyboard" hidden aria-hidden="true"></div>
+            </section>
+
+            <section class="master-chat-wrapper" id="master-chat-wrapper" hidden aria-label="Личный чат">
+                <div class="chat-header">
+                    <div><i class="fa-solid fa-comments" aria-hidden="true"></i> <span id="master-chat-title">Личный чат</span></div>
+                    <button class="icon-button" type="button" onclick="closeMasterChat()" aria-label="Закрыть чат"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+                </div>
+                <div id="master-chat-container" class="chat-messages" aria-live="polite"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="master-chat-input" class="chat-input" placeholder="Напиши сообщение…" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" maxlength="5000" aria-label="Сообщение">
+                    <button class="chat-send-btn" id="master-chat-send" type="button" onclick="sendMasterChatMessage()" aria-label="Отправить сообщение"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="custom-modal" class="custom-modal" hidden aria-hidden="true">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-header">
+                <h2 id="modal-title">Заголовок</h2>
+                <button class="modal-close" type="button" onclick="closeCustomModal()" aria-label="Закрыть окно"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            <div class="modal-body" id="modal-body"></div>
+            <div class="modal-footer" id="modal-footer"></div>
+        </div>
+    </div>
+
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+    <div id="loading-overlay" class="loading-overlay" hidden aria-hidden="true">
+        <div class="loading-card" role="status">
+            <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+            <span id="loading-text">Загрузка…</span>
+        </div>
+    </div>
+
+    <nav id="mobile-nav" class="mobile-nav" hidden aria-label="Быстрая навигация">
+        <button type="button" data-route="home" onclick="showMainMenu()"><i class="fa-solid fa-house"></i><span>Главная</span></button>
+        <button type="button" data-route="homework" onclick="window.showHomeworkBoard()"><i class="fa-solid fa-clipboard-list"></i><span>Задания</span></button>
+        <button type="button" data-route="lessons" onclick="showTOC()"><i class="fa-solid fa-book-open"></i><span>Уроки</span></button>
+        <button type="button" data-route="progress" onclick="window.showProgressTable()"><i class="fa-solid fa-chart-column"></i><span>Прогресс</span></button>
+        <button type="button" data-route="more" onclick="openQuickMenu()"><i class="fa-solid fa-ellipsis"></i><span>Ещё</span></button>
+    </nav>
+
+    <button id="display-settings-button" class="display-settings-button" type="button" onclick="openDisplaySettings()" hidden aria-label="Настройки отображения" title="Настройки отображения"><i class="fa-solid fa-sliders"></i></button>
+    <button id="scroll-top-button" class="scroll-top-button" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" hidden aria-label="Наверх"><i class="fa-solid fa-arrow-up"></i></button>
+    <button id="back-button" class="back-button" type="button" onclick="showMainMenu()" hidden><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Назад</button>
+
+    <div class="particles" aria-hidden="true">
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+    </div>
+
+    <noscript><div class="noscript-message">Для работы Акаши нужно включить JavaScript.</div></noscript>
+
+    <script src="config-2.5.js?v=2.5.0-github"></script>
+    <script src="storage-2.5.js?v=2.5.0-github"></script>
+    <script src="app-2.5.js?v=2.5.0-github" defer></script>
+</body>
+</html>
