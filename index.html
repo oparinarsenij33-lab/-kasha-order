@@ -2,142 +2,176 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#0d1f14">
-    <meta name="description" content="Акаша — учебный кабинет Ордена: уроки, домашние задания, сообщения и успеваемость.">
-    <meta name="color-scheme" content="dark">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Акаша — Хранительница Знаний Ордена</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Акаша — Хранительница Знаний Ордена Вольных Джедаев</title>
+    <meta name="description" content="Официальная система обучения Ордена Вольных Джедаев. Уроки, задания, чат с Мастерами.">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://oparinarsenij33-lab.github.io/-kasha-order/">
+    <meta property="og:title" content="Акаша — Хранительница Знаний Ордена Вольных Джедаев">
+    <meta property="og:description" content="Официальная система обучения Ордена Вольных Джедаев. Уроки, задания, чат с Мастерами.">
+    <meta property="og:image" content="https://oparinarsenij33-lab.github.io/-kasha-order/icon.svg">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Акаша — Хранительница Знаний Ордена Вольных Джедаев">
+    <meta name="twitter:description" content="Официальная система обучения Ордена Вольных Джедаев. Уроки, задания, чат с Мастерами.">
+    <meta name="twitter:image" content="https://oparinarsenij33-lab.github.io/-kasha-order/icon.svg">
+
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="base-2.5.css">
+    <link rel="stylesheet" href="ui-2.5.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link rel="stylesheet" href="base-2.5.css?v=2.5.0">
-    <link rel="stylesheet" href="ui-2.5.css?v=2.5.0">
-    <script>
-    // Однократно удаляем кэш старых версий, из-за которого CSS и JS смешивались.
-    window.addEventListener('load', function () {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function (items) {
-                items.forEach(function (item) { item.unregister(); });
-            }).catch(function () {});
-        }
-        if ('caches' in window) {
-            caches.keys().then(function (keys) {
-                keys.filter(function (key) { return key.indexOf('akasha-') === 0; })
-                    .forEach(function (key) { caches.delete(key); });
-            }).catch(function () {});
-        }
-    }, { once: true });
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    </style>
 </head>
-<body>
-    <a class="skip-link" href="#chat-container">К основному содержимому</a>
-
+<body class="season-winter">
     <div class="app-shell">
         <header class="app-header">
-            <div class="brand-block">
-                <div class="brand-icon" aria-hidden="true"><i class="fa-solid fa-scroll"></i></div>
-                <div>
-                    <h1>Акаша</h1>
-                    <p class="subtitle">Хранительница Знаний Ордена</p>
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="icon.svg" alt="Логотип Акаши" class="logo-icon">
+                    <div>
+                        <h1 class="app-title">Акаша</h1>
+                        <div class="status-bar">
+                            <div id="connection-status" class="status-chip is-offline">
+                                <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+                                <span class="status-text">Нет подключения</span>
+                            </div>
+                            <div id="season-indicator" class="season-indicator">
+                                <i class="fa-solid fa-snowflake" aria-hidden="true"></i>
+                                <span>Зима</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="header-actions">
-                <div id="connection-status" class="status-chip is-connecting" role="status" aria-live="polite">
-                    <span class="status-dot" aria-hidden="true"></span>
-                    <span class="status-text">Подключение…</span>
-                </div>
-                <div id="current-user-chip" class="user-chip" hidden>
-                    <i class="fa-solid fa-user" aria-hidden="true"></i>
-                    <span id="current-user-name"></span>
-                </div>
-                <button class="icon-button logout-btn" id="logout-button" type="button" onclick="handleLogout()" hidden aria-label="Выйти из аккаунта" title="Выйти">
-                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div id="season-indicator" class="season-indicator" aria-label="Сезонная тема"></div>
-        </header>
-
-        <main class="container">
-            <section id="chat-container" class="chat-container" tabindex="-1" aria-live="polite" aria-label="Основное содержимое"></section>
-
-            <section class="input-wrapper" id="main-input-wrapper" hidden aria-label="Поиск по Акаше">
-                <div class="input-wrapper-title">
-                    <span><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Поиск по Акаше</span>
-                    <small>Обычный блок страницы — ничего не перекрывает</small>
-                </div>
-                <textarea id="custom-textarea" class="custom-textarea" placeholder="Введи вопрос или команду…" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" enterkeyhint="send" maxlength="10000" aria-label="Сообщение Акаше"></textarea>
-                <div class="toolbar">
-                    <span class="input-hint"><i class="fa-regular fa-keyboard" aria-hidden="true"></i> Enter — отправить, Shift+Enter — новая строка</span>
-                    <span id="main-input-counter" class="char-counter" aria-live="polite">0 / 10000</span>
-                    <button class="toolbar-btn send-btn" id="main-send-button" type="button" onclick="handleSend()">
-                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i><span>Отправить</span>
+                <div class="header-actions">
+                    <button id="logout-button" class="logout-btn" hidden>
+                        <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                        <span>Выйти</span>
                     </button>
                 </div>
-                <div id="custom-keyboard" class="custom-keyboard" hidden aria-hidden="true"></div>
-            </section>
-
-            <section class="master-chat-wrapper" id="master-chat-wrapper" hidden aria-label="Личный чат">
-                <div class="chat-header">
-                    <div><i class="fa-solid fa-comments" aria-hidden="true"></i> <span id="master-chat-title">Личный чат</span></div>
-                    <button class="icon-button" type="button" onclick="closeMasterChat()" aria-label="Закрыть чат"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-                </div>
-                <div id="master-chat-container" class="chat-messages" aria-live="polite"></div>
-                <div class="chat-input-area">
-                    <input type="text" id="master-chat-input" class="chat-input" placeholder="Напиши сообщение…" autocomplete="off" autocorrect="on" autocapitalize="sentences" spellcheck="true" inputmode="text" maxlength="5000" aria-label="Сообщение">
-                    <button class="chat-send-btn" id="master-chat-send" type="button" onclick="sendMasterChatMessage()" aria-label="Отправить сообщение"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></button>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <div id="custom-modal" class="custom-modal" hidden aria-hidden="true">
-        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-            <div class="modal-header">
-                <h2 id="modal-title">Заголовок</h2>
-                <button class="modal-close" type="button" onclick="closeCustomModal()" aria-label="Закрыть окно"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
             </div>
-            <div class="modal-body" id="modal-body"></div>
-            <div class="modal-footer" id="modal-footer"></div>
+        </header>
+
+        <main class="app-main">
+            <div id="chat-container" class="chat-container" tabindex="-1"></div>
+            
+            <div id="master-chat-wrapper" class="master-chat-wrapper" hidden>
+                <div class="master-chat-header">
+                    <button class="chat-back-btn" onclick="window.closeMasterChat()">
+                        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+                    </button>
+                    <h3 id="master-chat-title">Чат с Мастером</h3>
+                    <div class="chat-spacer"></div>
+                </div>
+                <div id="master-chat-container" class="master-chat-container"></div>
+                <div class="master-chat-input-wrapper">
+                    <textarea 
+                        id="master-chat-input" 
+                        class="master-chat-input" 
+                        placeholder="Введите сообщение..." 
+                        maxlength="2000"
+                        onkeydown="if(event.key==='Enter'&& !event.shiftKey){event.preventDefault();window.sendMasterChatMessage();}"
+                    ></textarea>
+                    <button id="master-chat-send" class="master-chat-send-btn" onclick="window.sendMasterChatMessage()">
+                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <div id="main-input-wrapper" class="main-input-wrapper">
+            <div class="input-container">
+                <textarea 
+                    id="custom-textarea" 
+                    class="custom-textarea" 
+                    placeholder="Задай мне вопрос или введи команду..." 
+                    maxlength="2000"
+                    onkeydown="if(event.key==='Enter'&& !event.shiftKey){event.preventDefault();processUserInput();}"
+                ></textarea>
+                <button id="send-button" class="send-button" onclick="processUserInput()">
+                    <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div id="custom-keyboard" class="custom-keyboard"></div>
+        </div>
+
+        <div id="loading-overlay" class="loading-overlay" hidden>
+            <div class="loading-spinner">
+                <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
+                <span id="loading-text">Загрузка...</span>
+            </div>
+        </div>
+
+        <div id="toast-region" class="toast-region"></div>
+
+        <div id="custom-modal" class="custom-modal" role="dialog" aria-hidden="true" inert>
+            <div class="modal-backdrop" onclick="closeModal()"></div>
+            <div class="modal-content" role="document">
+                <div class="modal-header">
+                    <h2 id="modal-title">Заголовок</h2>
+                    <button class="modal-close-btn" onclick="closeModal()" aria-label="Закрыть">
+                        <i class="fa-solid fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div id="modal-body" class="modal-body"></div>
+                <div class="modal-footer">
+                    <button id="modal-cancel" class="hw-btn secondary" onclick="closeModal()">Отмена</button>
+                    <button id="modal-submit" class="hw-btn primary">Подтвердить</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCwTw-52bQ_MxtdFAT3s9pkEN9rQ2qiMEE",
+            authDomain: "akasha-2b362.firebaseapp.com",
+            projectId: "akasha-2b362",
+            storageBucket: "akasha-2b362.firebasestorage.app",
+            messagingSenderId: "352516960841",
+            appId: "1:352516960841:web:88cdd6b970b14b5ced8598",
+            measurementId: "G-GDYYS12EQH"
+        };
 
-    <div id="loading-overlay" class="loading-overlay" hidden aria-hidden="true">
-        <div class="loading-card" role="status">
-            <i class="fa-solid fa-circle-notch fa-spin" aria-hidden="true"></i>
-            <span id="loading-text">Загрузка…</span>
-        </div>
-    </div>
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        
+        // Make Firebase available globally
+        window.firebase = firebase;
+        window.windowDb = firebase.firestore();
+        
+        // Update connection status
+        window.dbReady = true;
+        const statusEl = document.getElementById('connection-status');
+        if (statusEl) {
+            statusEl.className = 'status-chip is-online';
+            statusEl.querySelector('.status-text').textContent = 'Подключено';
+        }
+    </script>
 
-    <nav id="mobile-nav" class="mobile-nav" hidden aria-label="Быстрая навигация">
-        <button type="button" data-route="home" onclick="showMainMenu()"><i class="fa-solid fa-house"></i><span>Главная</span></button>
-        <button type="button" data-route="homework" onclick="window.showHomeworkBoard()"><i class="fa-solid fa-clipboard-list"></i><span>Задания</span></button>
-        <button type="button" data-route="lessons" onclick="showTOC()"><i class="fa-solid fa-book-open"></i><span>Уроки</span></button>
-        <button type="button" data-route="progress" onclick="window.showProgressTable()"><i class="fa-solid fa-chart-column"></i><span>Прогресс</span></button>
-        <button type="button" data-route="more" onclick="openQuickMenu()"><i class="fa-solid fa-ellipsis"></i><span>Ещё</span></button>
-    </nav>
-
-    <button id="display-settings-button" class="display-settings-button" type="button" onclick="openDisplaySettings()" hidden aria-label="Настройки отображения" title="Настройки отображения"><i class="fa-solid fa-sliders"></i></button>
-    <button id="scroll-top-button" class="scroll-top-button" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" hidden aria-label="Наверх"><i class="fa-solid fa-arrow-up"></i></button>
-    <button id="back-button" class="back-button" type="button" onclick="showMainMenu()" hidden><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Назад</button>
-
-    <div class="particles" aria-hidden="true">
-        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
-    </div>
-
-    <noscript><div class="noscript-message">Для работы Акаши нужно включить JavaScript.</div></noscript>
-
-    <script src="config-2.5.js?v=2.5.0-github"></script>
-    <script src="storage-2.5.js?v=2.5.0-github"></script>
-    <script src="app-2.5.js?v=2.5.0-github" defer></script>
+    <!-- Load App Scripts -->
+    <script src="config-2.5.js"></script>
+    <script src="firebase-client.js"></script>
+    <script src="app-2.5.js"></script>
+    
+    <!-- Global Functions -->
+    <script>
+        // Global functions available to the app
+        window.firebase = firebase;
+        window.windowDb = firebase.firestore();
+    </script>
 </body>
 </html>
