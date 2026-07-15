@@ -22,7 +22,7 @@ let addLessonState = null;
 let windowDb = null;
 let isInitialized = false;
 let authClient = null;
-let storageMode = 'php';
+let storageMode = 'firebase';
 let previousModalFocus = null;
 let chatPollTimer = null;
 let activeRequests = 0;
@@ -373,13 +373,13 @@ function clearHistory() {
 }
 
 function saveUserToStorage() {
-    if (!LOCAL_STORAGE_AVAILABLE || storageMode === 'php') return;
+    if (!LOCAL_STORAGE_AVAILABLE || storageMode === 'firebase') return;
     if (currentUser) { localStorage.setItem(USER_KEY, JSON.stringify(currentUser)); }
     else { localStorage.removeItem(USER_KEY); }
 }
 
 function loadUserFromStorage() {
-    if (!LOCAL_STORAGE_AVAILABLE || storageMode === 'php') return;
+    if (!LOCAL_STORAGE_AVAILABLE || storageMode === 'firebase') return;
     try {
         const user = JSON.parse(localStorage.getItem(USER_KEY));
         if (user) { currentUser = user; }
