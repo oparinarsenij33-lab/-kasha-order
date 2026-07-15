@@ -1,3 +1,66 @@
+// ===== ИНИЦИАЛИЗАЦИЯ =====
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.akashaInitialized) return;
+    window.akashaInitialized = true;
+
+    // Подключаем Firebase если storage === 'firebase'
+    if (window.AKASHA_CONFIG?.storage === 'firebase') {
+        if (window.firebase) {
+            window.dbClient = window.createFirebaseDatabaseClient(firebase);
+            window.windowDb = firebase.firestore();
+            console.log('✅ Firebase подключён через config');
+        } else {
+            console.error('❌ Firebase не загружен!');
+        }
+    } else {
+        // Резервный вариант - локальный клиент
+        window.dbClient = createLocalDatabaseClient();
+    }
+
+    applySeasonTheme();
+    renderKeyboard();
+
+    setTimeout(async () => {
+        try {
+            // Проверяем сессию
+            if (window.dbClient && typeof window.dbClient.getSession === 'function') {
+                const session = await window.dbClient.getSession();
+                if (session.ok && session.authenticated) {
+                    currentUser = session.profile;
+                    updateLogoutButton();
+                }
+            }
+
+            // Загружаем данные
+            if (window.dbClient && typeof window.dbClient.ping === 'function') {
+                await window.dbClient.ping();
+            }
+
+            // Загружаем историю чата (если доступно)
+            loadHistoryFromStorage();
+
+            const container = document.getElementById('chat-container');
+            if (container) container.innerHTML = '';
+
+            if (currentUser) {
+                // Загружаем уроки, задания и т.д.
+                if (window.dbClient) {
+                    await loadLessonsFromFirebase();
+                    await loadAssignments();
+                    await loadSubmissions();
+                }
+                addMessage(getRankGreeting(currentUser));
+                showMainMenu();
+            } else {
+                addMessage(getStrangerGreeting());
+            }
+        } catch (e) {
+            console.error('Ошибка инициализации:', e);
+            addMessage('<p>⚠️ Ошибка подключения к базе данных.</p>');
+        }
+    }, 500);
+});
+
 // ===== FIREBASE =====
 const firebaseConfig = {
     apiKey: "AIzaSyCwTw-52bQ_MxtdFAT3s9pkEN9rQ2qiMEE",
@@ -22,7 +85,7 @@ let addLessonState = null;
 let windowDb = null;
 let isInitialized = false;
 let authClient = null;
-let storageMode = 'firebase';
+let storageMode = 'firebase'; // ← ИСПРАВЛЕНО!
 let previousModalFocus = null;
 let chatPollTimer = null;
 let activeRequests = 0;
@@ -167,7 +230,6 @@ function escapeHtml(value) {
         '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
     }[char]));
 }
-
 function asDate(value) {
     if (!value) return null;
     if (value instanceof Date) return value;
@@ -226,7 +288,6 @@ function safeRichText(value) {
     const hadMarkup = /<\/?[a-z][\s\S]*>/i.test(source);
     return hadMarkup ? wrapper.innerHTML : escapeHtml(source).replace(/\n/g, '<br>');
 }
-
 function profileToCurrentUser(profile) {
     if (!profile) return null;
     return {
@@ -373,13 +434,13 @@ function clearHistory() {
 }
 
 function saveUserToStorage() {
-    if (!LOCAL_STORAGE_AVAILABLE || storageMode === 'firebase') return;
+    if (!LOCAL_STORAGE_AVAILABLE || storageMode === 'php') return;
     if (currentUser) { localStorage.setItem(USER_KEY, JSON.stringify(currentUser)); }
     else { localStorage.removeItem(USER_KEY); }
 }
 
 function loadUserFromStorage() {
-    if (!LOCAL_STORAGE_AVAILABLE || storageMode === 'firebase') return;
+    if (!LOCAL_STORAGE_AVAILABLE || storageMode === 'php') return;
     try {
         const user = JSON.parse(localStorage.getItem(USER_KEY));
         if (user) { currentUser = user; }
@@ -471,7 +532,6 @@ async function updateAssignment(assignmentId, updates) {
         return false;
     }
 }
-
 async function removeAssignment(assignmentId) {
     if (!windowDb || !assignmentId) return false;
     try {
@@ -506,7 +566,6 @@ async function updateSubmissionStatus(submissionId, status, feedback) {
         return true;
     } catch (error) { console.error('Ошибка обновления:', error); return false; }
 }
-
 async function loadCommentsForLesson(lessonId) {
     if (!windowDb || !lessonId) return [];
     try {
@@ -554,7 +613,6 @@ async function addLessonToFirebase(category, title, content, mediaUrl = '') {
         return true;
     } catch (error) { return false; }
 }
-
 async function updateLessonInFirebase(lessonId, updates) {
     if (!windowDb || !lessonId) return false;
     try {
@@ -611,7 +669,6 @@ async function loadChatWith(partnerName) {
         return [];
     }
 }
-
 async function markAsRead(fromUser) {
     if (!windowDb || !currentUser || !fromUser) return;
     try {
@@ -655,7 +712,6 @@ function renderChatMessages(messages, partnerName) {
     requestAnimationFrame(() => { container.scrollTop = container.scrollHeight; });
     if (partnerName) markAsRead(partnerName);
 }
-
 async function refreshActiveChat() {
     const partner = window.currentChatPartner;
     if (!partner || document.getElementById('master-chat-wrapper')?.hidden) return;
@@ -693,7 +749,6 @@ window.openMasterChat = async function() {
     }
     await openChatPartner(currentUser.учитель);
 };
-
 async function showMasterDashboard() {
     if (!windowDb || !currentUser) return;
     const container = document.getElementById('chat-container');
@@ -743,7 +798,6 @@ async function showMasterDashboard() {
 window.openChatWithStudent = async function(studentName) {
     await openChatPartner(studentName);
 };
-
 window.sendMasterChatMessage = async function() {
     const input = document.getElementById('master-chat-input');
     const button = document.getElementById('master-chat-send');
